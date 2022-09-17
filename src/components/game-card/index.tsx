@@ -15,7 +15,7 @@ import { styles } from './styles';
 export type GameCardProps = TouchableOpacityProps & {
   id: string
   name: string
-  ads: string
+  ads: number
   cover: ImageSourcePropType
 }
 
