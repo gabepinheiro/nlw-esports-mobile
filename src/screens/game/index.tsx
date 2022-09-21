@@ -6,7 +6,7 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { DuoCard, DuoCardProps, Heading } from '../../components';
+import { DuoCard, DuoCardProps, Heading, DuoMatch } from '../../components';
 
 import { Entypo } from '@expo/vector-icons'
 
@@ -27,14 +27,27 @@ export function Game (){
 
   const { goBack } = useNavigation()
 
+  const [discordDuoSelected, setDiscordDuoSelected] = useState('')
+
   useEffect(() => {
     fetch(`http://192.168.15.12:3333/games/${game.id}/ads`)
       .then(r => r.json())
       .then(setDuos)
   }, [])
 
+  function handleClose () {
+    setDiscordDuoSelected('')
+  }
+
   function handleGoBack () {
     goBack()
+  }
+
+  async function getDiscordUser (adsId: string) {
+    const res = await fetch(`http://192.168.15.12:3333/ads/${adsId}/discord`)
+    const data = await res.json()
+
+    setDiscordDuoSelected(data.discord)
   }
 
   if (!duos) return null
@@ -73,7 +86,7 @@ export function Game (){
         <FlatList 
           data={duos}
           keyExtractor={({ id }) => id}
-          renderItem={({ item }) => <DuoCard data={item} onConnect={() => null} />}
+          renderItem={({ item }) => <DuoCard data={item} onConnect={() => getDiscordUser(item.id)} />}
           horizontal
           style={styles.containerList}
           contentContainerStyle={duos.length > 0 ? styles.contentList  : styles.emptyListContent}
@@ -85,6 +98,11 @@ export function Game (){
           )}
         />
 
+        <DuoMatch
+          visible={!!discordDuoSelected}
+          discord={discordDuoSelected}
+          onClose={handleClose}
+        />
     </SafeAreaView>
   )
 }
